@@ -1,8 +1,53 @@
 [build]
 builder = "NIXPACKS"
 
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
+# Añadimos /opt/flutter/bin al PATH para todas las fases
+[variables]
+NIXPACKS_PATH = "/opt/flutter/bin:/opt/venv/bin:$NIXPACKS_PATH"
 
+# 1) Paquetes del sistema + Flutter SDK
+[phases.setup]
+cmds = [
+  "apt-get update",
+  "apt-get install -y curl unzip xz-utils git libglu1-mesa",
+  # Descarga Flutter estable (ajústalo si ya tienes otra versión)
+  "curl -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.3-stable.tar.xz -o /tmp/flutter.tar.xz",
+  "mkdir -p /opt && tar -xf /tmp/flutter.tar.xz -C /opt",
+  "flutter --version || /opt/flutter/bin/flutter --version",
+  "flutter config --no-analytics || true"
+]
+
+# 2) Dependencias Python + Build de Flutter (si existe)
+[phases.install]
+cmds = [
+  "python -m venv --copies /opt/venv && . /opt/venv/bin/activate && pip install --upgrade pip",
+  "pip install -r requirements.txt",
+
+  # Si existe Ali_Front → build web
+  "bash -lc 'if [ -d Ali_Front ]; then cd Ali_Front && flutter pub get && flutter build web --release; fi'",
+
+  # Si existe ali_fronted → build web
+  "bash -lc 'if [ -d ali_fronted ]; then cd ali_fronted && flutter pub get && flutter build web --release; fi'",
+
+  # Copiar el build web al backend para servirlo vía WhiteNoise
+  "bash -lc 'mkdir -p ali_backend/static/app && if [ -d Ali_Front/build/web ]; then cp -r Ali_Front/build/web/* ali_backend/static/app/; elif [ -d ali_fronted/build/web ]; then cp -r ali_fronted/build/web/* ali_backend/static/app/; fi'"
+]
+
+# 3) Nada especial en build (ya lo hicimos arriba)
+[phases.build]
+cmds = []
+
+# 4) Comando de arranque:
+#    - Migraciones
+#    - collectstatic (sirven el build Flutter desde static/app/)
+#    - Gunicorn con chdir a la carpeta outer y módulo inner
 [start]
-cmd = "gunicorn ali_backend.wsgi --chdir ali_backend --workers 3 --timeout 120 --bind 0.0.0.0:$PORT"
+cmd = """
+bash -lc '
+  cd ali_backend && \
+  python manage.py migrate --noinput && \
+  python manage.py collectstatic --noinput && \
+  cd .. && \
+  gunicorn ali_backend.wsgi --chdir ali_backend --workers 3 --timeout 120 --bind 0.0.0.0:$PORT
+'
+"""
