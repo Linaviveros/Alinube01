@@ -121,7 +121,7 @@ WSGI_APPLICATION = 'ali_backend.wsgi.application'
 # =========================
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL', default='postgres://postgres:lina123@localhost:5432/bd_ali'),
+        default=config('DATABASE_URL', default='postgresql://postgres:VmBUKdVxOBomWFBwxWGMvvPlYzrwCTNO@nozomi.proxy.rlwy.net:19164/railway'),
         conn_max_age=600,
         ssl_require=False  # cambia a True o usa ?sslmode=require si tu servidor lo exige
     )
