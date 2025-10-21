@@ -1,5 +1,5 @@
 # Web / Django
-Django==5.1.4
+Django==5.0.6
 gunicorn==21.2.0
 whitenoise==6.7.0
 
@@ -21,7 +21,7 @@ django-celery-beat==2.6.0
 # HTTP cliente / util
 requests==2.32.3
 
-# Ciencia de datos / ML (para cargar y usar tus modelos)
+# Ciencia de datos / ML
 numpy==1.26.4
 pandas==2.2.2
 scikit-learn==1.4.2
