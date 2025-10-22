@@ -5,10 +5,12 @@ apt-get update -y \
  && apt-get install -y --no-install-recommends curl ca-certificates git unzip xz-utils build-essential \
  && rm -rf /var/lib/apt/lists/*
 
-echo ">>> Instala Flutter stable"
-curl -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.0-stable.tar.xz -o /tmp/flutter.tar.xz
+echo ">>> Instala Flutter 3.24.3 (Dart 3.5.3)"
+curl -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.3-stable.tar.xz -o /tmp/flutter.tar.xz
 mkdir -p /opt
 tar -xJf /tmp/flutter.tar.xz -C /opt
+# Evita 'dubious ownership' al correr como root en CI
+git config --global --add safe.directory /opt/flutter
 export PATH="/opt/flutter/bin:$PATH"
 /opt/flutter/bin/flutter --version
 /opt/flutter/bin/flutter config --enable-web
