@@ -11,7 +11,8 @@ django-cors-headers==4.4.0
 # Config / DB
 python-decouple==3.8
 dj-database-url==2.3.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.9; python_version < "3.13"
+psycopg[binary]==3.2.3; python_version >= "3.13"
 django-extensions==3.2.3
 
 # Tareas
@@ -21,16 +22,14 @@ django-celery-beat==2.6.0
 # HTTP cliente / util
 requests==2.32.3
 
-# Zona horaria (útil en contenedores/entornos slim)
+# Zona horaria
 tzdata>=2024.1
 
 # Ciencia de datos / ML
-# — Compatibles con Python 3.12 (pins originales) —
 numpy==1.26.4; python_version < "3.13"
 pandas==2.2.2; python_version < "3.13"
 scikit-learn==1.4.2; python_version < "3.13"
 
-# — Fallbacks si accidentalmente el builder usa Python 3.13 —
 numpy>=2.0,<3; python_version >= "3.13"
 pandas>=2.2.3,<3; python_version >= "3.13"
 scikit-learn>=1.5.0,<1.6; python_version >= "3.13"
